@@ -19,11 +19,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    is_admin = serializers.SerializerMethodField()
-
     class Meta:
         model = User
-        fields = ["id", "username", "email", "is_staff", "is_admin"]
-
-    def get_is_admin(self, obj):
-        return obj.is_staff
+        fields = ["id", "username", "email", "is_staff", "is_superuser"]
