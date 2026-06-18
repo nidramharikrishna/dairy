@@ -4,7 +4,6 @@ import API from "../services/api";
 function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-
   const [categoryName, setCategoryName] = useState("");
 
   const [form, setForm] = useState({
@@ -14,7 +13,6 @@ function AdminProducts() {
     price: "",
     unit: "",
     stock_quantity: "",
-    image: null,
     is_active: true,
   });
 
@@ -27,7 +25,7 @@ function AdminProducts() {
       setCategories(catRes.data);
       setProducts(prodRes.data);
     } catch (error) {
-      console.log("Failed to fetch admin products");
+      console.log("Failed to fetch admin products", error);
     }
   };
 
@@ -41,11 +39,14 @@ function AdminProducts() {
     if (!categoryName.trim()) return;
 
     try {
-      await API.post("categories/", { name: categoryName });
+      await API.post("categories/", {
+        name: categoryName.trim(),
+      });
+
       setCategoryName("");
       fetchData();
     } catch (error) {
-      alert("Failed to create category");
+      alert(JSON.stringify(error.response?.data || "Failed to create category"));
     }
   };
 
@@ -61,11 +62,11 @@ function AdminProducts() {
   };
 
   const handleChange = (e) => {
-    const { name, value, files, type, checked } = e.target;
+    const { name, value, type, checked } = e.target;
 
     setForm({
       ...form,
-      [name]: type === "file" ? files[0] : type === "checkbox" ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     });
   };
 
@@ -77,38 +78,35 @@ function AdminProducts() {
       price: "",
       unit: "",
       stock_quantity: "",
-      image: null,
       is_active: true,
     });
+
     setEditingId(null);
   };
 
   const saveProduct = async (e) => {
     e.preventDefault();
 
-    const data = new FormData();
-
-    data.append("category", form.category);
-    data.append("name", form.name);
-    data.append("description", form.description);
-    data.append("price", form.price);
-    data.append("unit", form.unit);
-    data.append("stock_quantity", form.stock_quantity);
-    data.append("is_active", form.is_active);
-
-    if (form.image) {
-      data.append("image", form.image);
-    }
+    const payload = {
+      category: Number(form.category),
+      name: form.name.trim(),
+      description: form.description.trim(),
+      price: Number(form.price),
+      unit: form.unit.trim(),
+      stock_quantity: Number(form.stock_quantity),
+      is_active: Boolean(form.is_active),
+    };
 
     try {
       if (editingId) {
-        await API.patch(`products/${editingId}/`, data);
+        await API.patch(`products/${editingId}/`, payload);
       } else {
-        await API.post("products/", data);
+        await API.post("products/", payload);
       }
 
       resetForm();
       fetchData();
+      alert(editingId ? "Product updated" : "Product created");
     } catch (error) {
       console.log("Product save error:", error.response?.data || error);
       alert(JSON.stringify(error.response?.data || "Failed to save product"));
@@ -117,14 +115,14 @@ function AdminProducts() {
 
   const editProduct = (product) => {
     setEditingId(product.id);
+
     setForm({
-      category: product.category,
-      name: product.name,
+      category: product.category || "",
+      name: product.name || "",
       description: product.description || "",
-      price: product.price,
-      unit: product.unit,
-      stock_quantity: product.stock_quantity,
-      image: null,
+      price: product.price || "",
+      unit: product.unit || "",
+      stock_quantity: product.stock_quantity || "",
       is_active: product.is_active,
     });
   };
@@ -147,7 +145,10 @@ function AdminProducts() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="space-y-6">
-            <form onSubmit={createCategory} className="bg-white p-6 rounded-2xl shadow-sm">
+            <form
+              onSubmit={createCategory}
+              className="bg-white p-6 rounded-2xl shadow-sm"
+            >
               <h2 className="text-2xl font-bold mb-4">Add Category</h2>
 
               <input
@@ -167,8 +168,12 @@ function AdminProducts() {
 
               <div className="space-y-2">
                 {categories.map((cat) => (
-                  <div key={cat.id} className="flex justify-between bg-cream p-3 rounded-xl">
+                  <div
+                    key={cat.id}
+                    className="flex justify-between bg-cream p-3 rounded-xl"
+                  >
                     <span>{cat.name}</span>
+
                     <button
                       onClick={() => deleteCategory(cat.id)}
                       className="text-red-500"
@@ -177,11 +182,18 @@ function AdminProducts() {
                     </button>
                   </div>
                 ))}
+
+                {categories.length === 0 && (
+                  <p className="text-softText">No categories yet.</p>
+                )}
               </div>
             </div>
           </div>
 
-          <form onSubmit={saveProduct} className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm">
+          <form
+            onSubmit={saveProduct}
+            className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm"
+          >
             <h2 className="text-2xl font-bold mb-4">
               {editingId ? "Edit Product" : "Add Product"}
             </h2>
@@ -195,8 +207,11 @@ function AdminProducts() {
                 required
               >
                 <option value="">Select Category</option>
+
                 {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
                 ))}
               </select>
 
@@ -216,6 +231,7 @@ function AdminProducts() {
                 placeholder="Price"
                 type="number"
                 step="0.01"
+                min="0"
                 className="border rounded-xl px-4 py-3 outline-none"
                 required
               />
@@ -235,23 +251,9 @@ function AdminProducts() {
                 onChange={handleChange}
                 placeholder="Stock"
                 type="number"
+                min="0"
                 className="border rounded-xl px-4 py-3 outline-none"
                 required
-              />
-
-              <input
-                name="image"
-                onChange={handleChange}
-                type="file"
-                className="border rounded-xl px-4 py-3 outline-none"
-              />
-
-              <textarea
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                placeholder="Description"
-                className="md:col-span-2 border rounded-xl px-4 py-3 outline-none"
               />
 
               <label className="flex items-center gap-2">
@@ -263,6 +265,14 @@ function AdminProducts() {
                 />
                 Active
               </label>
+
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                placeholder="Description"
+                className="md:col-span-2 border rounded-xl px-4 py-3 outline-none"
+              />
             </div>
 
             <div className="flex gap-3 mt-5">
@@ -307,6 +317,7 @@ function AdminProducts() {
                     <td className="p-3">₹{product.price}</td>
                     <td className="p-3">{product.stock_quantity}</td>
                     <td className="p-3">{product.is_active ? "Yes" : "No"}</td>
+
                     <td className="p-3 flex gap-3">
                       <button
                         onClick={() => editProduct(product)}
