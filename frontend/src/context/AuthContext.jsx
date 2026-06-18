@@ -55,8 +55,6 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
     setUser(null);
-
-    window.location.href = "/login";
   };
 
   useEffect(() => {
