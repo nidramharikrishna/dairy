@@ -110,7 +110,8 @@ function AdminProducts() {
       resetForm();
       fetchData();
     } catch (error) {
-      alert("Failed to save product");
+      console.log("Product save error:", error.response?.data || error);
+      alert(JSON.stringify(error.response?.data || "Failed to save product"));
     }
   };
 

@@ -1,19 +1,30 @@
 from rest_framework import viewsets, filters, status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
+
 from .models import Category, Product, Wishlist, Review
-from .serializers import CategorySerializer, ProductSerializer, WishlistSerializer, ReviewSerializer
+from .serializers import (
+    CategorySerializer,
+    ProductSerializer,
+    WishlistSerializer,
+    ReviewSerializer,
+)
 
 
-class IsAdminOrReadOnly(IsAuthenticatedOrReadOnly):
+class IsAdminOrReadOnly(BasePermission):
     def has_permission(self, request, view):
-        if request.method in ["GET", "HEAD", "OPTIONS"]:
+        if request.method in SAFE_METHODS:
             return True
-        return request.user and request.user.is_staff
+
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.is_staff
+        )
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all()
+    queryset = Category.objects.all().order_by("name")
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
 
@@ -27,7 +38,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Product.objects.all().order_by("-created_at")
 
-        if not self.request.user.is_staff:
+        if not self.request.user.is_authenticated or not self.request.user.is_staff:
             queryset = queryset.filter(is_active=True)
 
         category = self.request.query_params.get("category")
@@ -49,13 +60,17 @@ class WishlistViewSet(viewsets.ModelViewSet):
 
         wishlist, created = Wishlist.objects.get_or_create(
             user=request.user,
-            product_id=product_id
+            product_id=product_id,
         )
 
         if not created:
             return Response({"message": "Already in wishlist"}, status=200)
 
-        return Response(WishlistSerializer(wishlist, context={"request": request}).data, status=201)
+        serializer = WishlistSerializer(
+            wishlist,
+            context={"request": request},
+        )
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

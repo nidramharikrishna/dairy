@@ -48,7 +48,7 @@ function ProductCard({ product }) {
         <div className="h-44 bg-milk rounded-xl flex items-center justify-center overflow-hidden mb-4">
           {product.image ? (
             <img
-              src={product.image}
+              src={product.image_url || product.image}
               alt={product.name}
               className="w-full h-full object-cover"
             />
