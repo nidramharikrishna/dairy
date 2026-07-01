@@ -28,12 +28,13 @@ function Navbar() {
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
-        <button
-          onClick={() => navigate("/")}
-          className="text-2xl font-bold text-darkText"
-        >
-          🥛 Dairy
-        </button>
+        <Link to="/" className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="Taaza Dairy"
+            className="h-14 w-auto object-contain"
+          />
+        </Link>
 
         {!isAdmin && (
           <form onSubmit={handleSearch} className="flex-1 max-w-md">
