@@ -55,6 +55,8 @@ export function AuthProvider({ children }) {
     localStorage.removeItem("access");
     localStorage.removeItem("refresh");
     setUser(null);
+
+    window.location.replace(`${window.location.origin}/#/`);
   };
 
   useEffect(() => {
@@ -70,7 +72,7 @@ export function AuthProvider({ children }) {
         register,
         logout,
         isAuthenticated: Boolean(user),
-        isAdmin: user?.is_staff === true,
+        isAdmin: user?.is_staff === true || user?.is_superuser === true,
       }}
     >
       {children}
