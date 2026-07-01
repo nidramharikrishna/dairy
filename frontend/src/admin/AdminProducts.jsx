@@ -13,6 +13,7 @@ function AdminProducts() {
     price: "",
     unit: "",
     stock_quantity: "",
+    image_url: "",
     is_active: true,
   });
 
@@ -78,6 +79,7 @@ function AdminProducts() {
       price: "",
       unit: "",
       stock_quantity: "",
+      image_url: "",
       is_active: true,
     });
 
@@ -94,6 +96,7 @@ function AdminProducts() {
       price: Number(form.price),
       unit: form.unit.trim(),
       stock_quantity: Number(form.stock_quantity),
+      image_url: form.image_url.trim(),
       is_active: Boolean(form.is_active),
     };
 
@@ -123,6 +126,7 @@ function AdminProducts() {
       price: product.price || "",
       unit: product.unit || "",
       stock_quantity: product.stock_quantity || "",
+      image_url: product.image_url || "",
       is_active: product.is_active,
     });
   };
@@ -256,6 +260,14 @@ function AdminProducts() {
                 required
               />
 
+              <input
+                name="image_url"
+                value={form.image_url}
+                onChange={handleChange}
+                placeholder="Image URL"
+                className="border rounded-xl px-4 py-3 outline-none"
+              />
+
               <label className="flex items-center gap-2">
                 <input
                   type="checkbox"
@@ -274,6 +286,20 @@ function AdminProducts() {
                 className="md:col-span-2 border rounded-xl px-4 py-3 outline-none"
               />
             </div>
+
+            {form.image_url && (
+              <div className="mt-5">
+                <p className="text-softText mb-2">Image Preview</p>
+                <img
+                  src={form.image_url}
+                  alt="Preview"
+                  className="w-40 h-32 object-cover rounded-xl border"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              </div>
+            )}
 
             <div className="flex gap-3 mt-5">
               <button className="bg-sky text-white px-6 py-3 rounded-xl">
@@ -300,6 +326,7 @@ function AdminProducts() {
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b">
+                  <th className="p-3">Image</th>
                   <th className="p-3">Product</th>
                   <th className="p-3">Category</th>
                   <th className="p-3">Price</th>
@@ -312,6 +339,18 @@ function AdminProducts() {
               <tbody>
                 {products.map((product) => (
                   <tr key={product.id} className="border-b">
+                    <td className="p-3">
+                      {product.image_url ? (
+                        <img
+                          src={product.image_url}
+                          alt={product.name}
+                          className="w-14 h-14 object-cover rounded-xl"
+                        />
+                      ) : (
+                        <span className="text-softText">No image</span>
+                      )}
+                    </td>
+
                     <td className="p-3">{product.name}</td>
                     <td className="p-3">{product.category_name}</td>
                     <td className="p-3">₹{product.price}</td>
@@ -338,7 +377,7 @@ function AdminProducts() {
 
                 {products.length === 0 && (
                   <tr>
-                    <td colSpan="6" className="p-6 text-center text-softText">
+                    <td colSpan="7" className="p-6 text-center text-softText">
                       No products found.
                     </td>
                   </tr>
