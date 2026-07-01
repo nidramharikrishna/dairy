@@ -16,7 +16,7 @@ function AdminLayout() {
           <img
             src="/logo.png"
             alt="Taaza Dairy"
-            className="h-14 w-auto object-contain"
+            className="h-16 w-auto"
           />
           <p className="text-softText text-sm mt-1">Management Panel</p>
         </div>
