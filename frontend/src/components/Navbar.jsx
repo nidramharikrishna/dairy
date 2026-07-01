@@ -1,4 +1,4 @@
-import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 
@@ -7,10 +7,8 @@ function Navbar() {
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
-  const linkClass = ({ isActive }) =>
-    isActive
-      ? "text-sky font-semibold"
-      : "text-softText hover:text-sky transition";
+  const normalLink = "text-softText hover:text-sky transition";
+  const activeButton = "text-sky font-semibold";
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -30,9 +28,12 @@ function Navbar() {
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
-        <Link to="/" className="text-2xl font-bold text-darkText">
+        <button
+          onClick={() => navigate("/")}
+          className="text-2xl font-bold text-darkText"
+        >
           🥛 Dairy
-        </Link>
+        </button>
 
         {!isAdmin && (
           <form onSubmit={handleSearch} className="flex-1 max-w-md">
@@ -55,54 +56,63 @@ function Navbar() {
         <div className="flex flex-wrap items-center gap-4">
           {!isAdmin && (
             <>
-              <NavLink to="/" className={linkClass}>
+              <button onClick={() => navigate("/")} className={normalLink}>
                 Home
-              </NavLink>
+              </button>
 
-              <NavLink to="/products" className={linkClass}>
+              <button
+                onClick={() => navigate("/products")}
+                className={normalLink}
+              >
                 Products
-              </NavLink>
+              </button>
             </>
           )}
 
           {user && !isAdmin && (
             <>
-              <NavLink to="/cart" className={linkClass}>
+              <button onClick={() => navigate("/cart")} className={normalLink}>
                 Cart
-              </NavLink>
+              </button>
 
-              <NavLink to="/orders" className={linkClass}>
+              <button onClick={() => navigate("/orders")} className={normalLink}>
                 Orders
-              </NavLink>
+              </button>
 
-              <NavLink to="/wishlist" className={linkClass}>
+              <button
+                onClick={() => navigate("/wishlist")}
+                className={normalLink}
+              >
                 Wishlist
-              </NavLink>
+              </button>
 
-              <NavLink to="/profile" className={linkClass}>
+              <button onClick={() => navigate("/profile")} className={normalLink}>
                 Profile
-              </NavLink>
+              </button>
             </>
           )}
 
           {isAdmin && (
-            <NavLink to="/admin" className={linkClass}>
+            <button onClick={() => navigate("/admin")} className={activeButton}>
               Admin Panel
-            </NavLink>
+            </button>
           )}
 
           {!user ? (
             <>
-              <NavLink to="/login" className={linkClass}>
+              <button
+                onClick={() => navigate("/login")}
+                className={normalLink}
+              >
                 Login
-              </NavLink>
+              </button>
 
-              <NavLink
-                to="/register"
+              <button
+                onClick={() => navigate("/register")}
                 className="bg-sky text-white px-4 py-2 rounded-xl hover:shadow-md transition"
               >
                 Register
-              </NavLink>
+              </button>
             </>
           ) : (
             <button
