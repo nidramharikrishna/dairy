@@ -13,11 +13,9 @@ function AdminLayout() {
     <div className="min-h-screen bg-cream flex">
       <aside className="w-64 bg-white shadow-sm p-6 hidden md:flex flex-col">
         <div className="mb-10">
-          <img
-            src="/logo.png"
-            alt="Taaza Dairy"
-            className="h-16 w-auto"
-          />
+          <h2  className="text-2xl font-bold text-darkText">
+            🥛 Dairy
+          </h2>
           <p className="text-softText text-sm mt-1">Management Panel</p>
         </div>
 
